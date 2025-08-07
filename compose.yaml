@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17.5-bookworm
+    container_name: discogrify-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: discogrify_dev
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  pg-data:
