@@ -12,12 +12,22 @@ defmodule DiscogrifyWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, module: DiscogrifyWeb.ApiSpec
   end
 
   scope "/", DiscogrifyWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
+
+  scope "/api" do
+    pipe_through :api
+    get "/", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+
+    get "/artists", DiscogrifyWeb.ArtistController, :search
+    get "/artists/:id", DiscogrifyWeb.ArtistController, :search_by_id
   end
 
   # Other scopes may use custom stacks.
