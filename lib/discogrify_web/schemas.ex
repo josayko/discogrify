@@ -52,13 +52,12 @@ defmodule DiscogrifyWeb.Schemas do
         data: %Schema{
           type: :object,
           properties: %{
-            artist: Artist,
             albums: %Schema{
               type: :array,
               items: Album
             }
           },
-          required: [:artist, :albums]
+          required: [:albums]
         }
       },
       required: [:data],
@@ -68,13 +67,13 @@ defmodule DiscogrifyWeb.Schemas do
             "id" => "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
             "spotify_id" => "4Z8W4fKeB5YxbusRsdQVPb",
             "name" => "The Best Album",
-            "release_date" => "2022-01-01"
+            "release_date" => "2022-01-23"
           },
           %{
-            "id" => "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
-            "spotify_id" => "4Z8W4fKeB5YxbusRsdQVPb",
+            "id" => "6b5fee77-635c-4a48-beca-ea1f96869849",
+            "spotify_id" => "756w4fkeb5yxbusrsdqvpb",
             "name" => "Another Best Album",
-            "release_date" => "2022-01-01"
+            "release_date" => "2021-09-01"
           }
         ]
       }
