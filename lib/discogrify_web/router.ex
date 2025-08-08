@@ -26,8 +26,7 @@ defmodule DiscogrifyWeb.Router do
     get "/", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
 
-    get "/artists", DiscogrifyWeb.ArtistController, :search
-    get "/artists/:id", DiscogrifyWeb.ArtistController, :search_by_id
+    get "/albums", DiscogrifyWeb.AlbumController, :search
   end
 
   # Other scopes may use custom stacks.

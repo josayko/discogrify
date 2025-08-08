@@ -4,99 +4,77 @@ defmodule DiscogrifyWeb.Schemas do
 
   defmodule Album do
     OpenApiSpex.schema(%{
-      title: "Album",
+      name: "Album",
       description: "An album",
       type: :object,
       properties: %{
-        title: %Schema{type: :string, description: "Title of the album"},
-        year: %Schema{type: :integer, description: "Year of the album"}
+        id: %Schema{type: :string, description: "Album ID"},
+        spotify_id: %Schema{type: :string, description: "Spotify ID"},
+        name: %Schema{type: :string, description: "Name of the album"},
+        release_date: %Schema{type: :string, description: "Release date of the album"}
       },
-      required: [:title, :year],
+      required: [:id, :spotify_id, :name, :release_date],
       example: %{
-        "title" => "The Best Album",
-        "year" => 2022
+        id: "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
+        spotify_id: "4Z8W4fKeB5YxbusRsdQVPb",
+        name: "The Best Album",
+        release_date: "2022-01-01"
       }
     })
   end
 
+  # ? Not used for now. Should we add the artist in albums response?
   defmodule Artist do
     OpenApiSpex.schema(%{
-      title: "Artist",
+      name: "Artist",
       description: "An artist",
       type: :object,
       properties: %{
         id: %Schema{type: :string, description: "Artist ID"},
-        name: %Schema{
-          type: :string,
-          description: "Artist name"
-        },
-        discography: %Schema{
-          type: :array,
-          items: Album,
-          description: "List of albums"
-        }
+        spotify_id: %Schema{type: :string, description: "Spotify ID"},
+        name: %Schema{type: :string, description: "Artist name"}
       },
-      required: [:name],
+      required: [:id, :spotify_id, :name],
       example: %{
-        "id" => "4Z8W4fKeB5YxbusRsdQVPb",
-        "name" => "Radiohead",
-        "discography" => [
-          %{
-            "title" => "The Best Album",
-            "year" => 2022
-          }
-        ]
+        "id" => "b3b31a66-9f4d-4ad7-9c34-2e9e3b44db3c",
+        "spotify_id" => "4z8w4fkeb5yxbusrsdqvpb",
+        "name" => "Radiohead"
       }
     })
   end
 
-  defmodule ArtistResponse do
+  defmodule AlbumsResponse do
     OpenApiSpex.schema(%{
-      title: "ArtistResponse",
-      description: "Single artist response",
-      type: :object,
-      properties: %{
-        data: Artist
-      },
-      required: [:data],
-      example: %{
-        "data" => %{
-          "id" => "4Z8W4fKeB5YxbusRsdQVPb",
-          "name" => "Radiohead",
-          "discography" => [
-            %{
-              "title" => "The Best Album",
-              "year" => 2022
-            }
-          ]
-        }
-      }
-    })
-  end
-
-  defmodule ArtistListResponse do
-    OpenApiSpex.schema(%{
-      title: "ArtistListResponse",
-      description: "List of artists response",
+      name: "AlbumsResponse",
+      description: "List of albums response",
       type: :object,
       properties: %{
         data: %Schema{
-          type: :array,
-          items: Artist
+          type: :object,
+          properties: %{
+            artist: Artist,
+            albums: %Schema{
+              type: :array,
+              items: Album
+            }
+          },
+          required: [:artist, :albums]
         }
       },
       required: [:data],
       example: %{
         "data" => [
           %{
-            "id" => "4Z8W4fKeB5YxbusRsdQVPb",
-            "name" => "Radiohead",
-            "discography" => [
-              %{
-                "title" => "The Best Album",
-                "year" => 2022
-              }
-            ]
+            "id" => "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
+            "spotify_id" => "4Z8W4fKeB5YxbusRsdQVPb",
+            "name" => "The Best Album",
+            "release_date" => "2022-01-01"
+          },
+          %{
+            "id" => "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
+            "spotify_id" => "4Z8W4fKeB5YxbusRsdQVPb",
+            "name" => "Another Best Album",
+            "release_date" => "2022-01-01"
           }
         ]
       }
