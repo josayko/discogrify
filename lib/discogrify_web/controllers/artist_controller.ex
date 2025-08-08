@@ -2,8 +2,6 @@ defmodule DiscogrifyWeb.ArtistController do
   use DiscogrifyWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  require Logger
-
   alias OpenApiSpex.{Schema}
   alias DiscogrifyWeb.Schemas
 
@@ -80,9 +78,6 @@ defmodule DiscogrifyWeb.ArtistController do
     ]
 
   def search_by_id(conn, %{id: id}) do
-    # log the params
-    Logger.info("Params: #{inspect(id)}")
-
     json(conn, %{
       data: %{
         id: id,
