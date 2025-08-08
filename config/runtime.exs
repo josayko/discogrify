@@ -1,4 +1,5 @@
 import Config
+import Dotenvy
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
@@ -117,3 +118,16 @@ if config_env() == :prod do
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
+
+if config_env() == :dev do
+  source!([
+    Path.absname(".env"),
+    System.get_env()
+  ])
+end
+
+config :discogrify,
+  spotify_accounts_url: env!("SPOTIFY_ACCOUNTS_URL"),
+  spotify_api_url: env!("SPOTIFY_API_URL"),
+  spotify_client_id: env!("SPOTIFY_CLIENT_ID"),
+  spotify_client_secret: env!("SPOTIFY_CLIENT_SECRET")
