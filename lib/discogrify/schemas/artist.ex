@@ -11,7 +11,7 @@ defmodule Discogrify.Schemas.Artist do
     field :spotify_id, :string
     field :name, :string
 
-    has_many :albums, Album
+    has_many :albums, Album, on_delete: :delete_all
 
     timestamps()
   end

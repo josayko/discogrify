@@ -39,8 +39,16 @@ defmodule Discogrify.Clients.SpotifyApi do
   end
 
   def get_data(endpoint, token) do
-    api_client(token)
-    |> Tesla.get(endpoint)
+    case api_client(token) |> Tesla.get(endpoint) do
+      {:ok, %Tesla.Env{status: status, body: body}} when status >= 200 and status < 300 ->
+        {:ok, %{status: status, body: body}}
+
+      {:ok, %Tesla.Env{status: status, body: body}} ->
+        {:error, {:http_error, status, body}}
+
+      {:error, reason} ->
+        {:error, {:network_error, reason}}
+    end
   end
 
   # Helper function to extract access token from the response
@@ -48,10 +56,10 @@ defmodule Discogrify.Clients.SpotifyApi do
     do: {:ok, token}
 
   defp extract_access_token({:ok, %Tesla.Env{status: status, body: body}}),
-    do: {:error, {status, body}}
+    do: {:error, {:http_error, status, body}}
 
   defp extract_access_token({:error, reason}),
-    do: {:error, reason}
+    do: {:error, {:network_error, reason}}
 
   # Convenience function to get token directly
   def get_access_token do

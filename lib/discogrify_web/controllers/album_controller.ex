@@ -4,6 +4,9 @@ defmodule DiscogrifyWeb.AlbumController do
 
   alias OpenApiSpex.{Schema}
   alias DiscogrifyWeb.Schemas
+  alias DiscogrifyWeb.ErrorHelpers
+  alias Discogrify.Music
+  alias Discogrify.Music.SpotifyIntegration
 
   # Add validation plugs
   plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
@@ -28,23 +31,40 @@ defmodule DiscogrifyWeb.AlbumController do
       ok: {"Albums List Response", "application/json", Schemas.AlbumsResponse}
     ]
 
-  def search(conn, %{artist_name: _artist_name}) do
-    # TODO: implement search albums by artist name
-    json(conn, %{
-      data: [
-        %{
-          id: "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
-          spotify_id: "4Z8W4fKeB5YxbusRsdQVPb",
-          name: "The Best Album",
-          release_date: "2022-01-01"
-        },
-        %{
-          id: "6f8c1f9e-0c59-4b6a-9ae4-bf6f208d3e1c",
-          spotify_id: "4Z8W4fKeB5YxbusRsdQVPb",
-          name: "Another Best Album",
-          release_date: "2022-01-01"
-        }
-      ]
-    })
+  def search(conn, %{artist_name: artist_name}) do
+    # First, try to find the artist in the database with albums preloaded
+    case Music.get_artist_by_name_with_albums(artist_name) do
+      %Discogrify.Schemas.Artist{albums: albums} = _artist ->
+        # Artist found in database with albums preloaded
+        albums_data =
+          Enum.map(albums, fn album ->
+            %{
+              id: album.id,
+              spotify_id: album.spotify_id,
+              name: album.name,
+              release_date: album.release_date
+            }
+          end)
+
+        json(conn, %{
+          data: %{
+            albums: albums_data
+          }
+        })
+
+      nil ->
+        # Artist not found in database, search Spotify API
+        case SpotifyIntegration.search_and_save_artist_albums(artist_name) do
+          {:ok, albums_data} ->
+            json(conn, %{
+              data: %{
+                albums: albums_data
+              }
+            })
+
+          {:error, error_type} ->
+            ErrorHelpers.handle_error(conn, error_type)
+        end
+    end
   end
 end

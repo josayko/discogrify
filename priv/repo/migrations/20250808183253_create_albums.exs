@@ -7,7 +7,7 @@ defmodule Discogrify.Repo.Migrations.CreateAlbums do
       add :spotify_id, :string, null: false
       add :name, :string, null: false
       add :release_date, :string, null: false
-      add :artist_id, references(:artists, type: :binary_id), null: false
+      add :artist_id, references(:artists, type: :binary_id, on_delete: :delete_all), null: false
 
       timestamps()
     end
