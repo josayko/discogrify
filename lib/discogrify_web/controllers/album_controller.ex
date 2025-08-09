@@ -34,7 +34,7 @@ defmodule DiscogrifyWeb.AlbumController do
   def search(conn, %{artist_name: artist_name}) do
     # First, try to find the artist in the database with albums preloaded
     case Music.get_artist_by_name_with_albums(artist_name) do
-      %Discogrify.Schemas.Artist{albums: albums} = _artist ->
+      %Discogrify.Schemas.Artist{albums: albums} ->
         # Artist found in database with albums preloaded
         albums_data =
           Enum.map(albums, fn album ->

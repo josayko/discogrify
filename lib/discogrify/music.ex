@@ -4,6 +4,14 @@ defmodule Discogrify.Music do
 
   alias Discogrify.Schemas.{Artist, Album}
 
+  # Used verify if an artist already exists when we failed to retrieve it from database first but Spotify API succeeded
+  def get_artist_by_spotify_id_with_albums(spotify_id) do
+    Artist
+    |> where([a], a.spotify_id == ^spotify_id)
+    |> preload(:albums)
+    |> Repo.one()
+  end
+
   def get_artist_by_name_with_albums(name) do
     # First try exact match (case-insensitive)
     case Artist

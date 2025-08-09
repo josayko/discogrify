@@ -40,19 +40,20 @@ defmodule Discogrify.Music.SpotifyIntegration do
 
   # Private functions
 
-  defp search_artist(encoded_artist_name, original_artist_name, token) do
+  defp search_artist(encoded_artist_name, _original_artist_name, token) do
     case Discogrify.Clients.SpotifyApi.get_data(
            "/search?q=#{encoded_artist_name}&type=artist&limit=1",
            token
          ) do
       {:ok, %{status: 200, body: %{"artists" => %{"items" => items}}}} ->
         artist = List.first(items)
-
-        if artist && String.downcase(artist["name"]) == String.downcase(original_artist_name) do
-          {:ok, artist}
-        else
-          {:error, :artist_not_found}
-        end
+        # ?: Strict on matching or rely on Spotify's search results ?
+        # if artist && String.downcase(artist["name"]) == String.downcase(original_artist_name) do
+        #   {:ok, artist}
+        # else
+        #   {:error, :artist_not_found}
+        # end
+        {:ok, artist}
 
       {:ok, %{status: 200, body: body}} ->
         {:error, {:unexpected_response_structure, body}}
@@ -84,36 +85,53 @@ defmodule Discogrify.Music.SpotifyIntegration do
 
   defp save_artist_and_albums_transaction(artist_data, album_items) do
     Multi.new()
-    |> Multi.insert(:artist, fn _changes ->
-      Music.create_artist_changeset(%{
-        spotify_id: artist_data["id"],
-        name: artist_data["name"]
-      })
+    |> Multi.run(:artist, fn _repo, _changes ->
+      # Check if artist already exists by spotify_id
+      case Music.get_artist_by_spotify_id_with_albums(artist_data["id"]) do
+        nil ->
+          # Artist doesn't exist, create new one
+          Music.create_artist_changeset(%{
+            spotify_id: artist_data["id"],
+            name: artist_data["name"]
+          })
+          |> Repo.insert()
+
+        existing_artist ->
+          # Artist already exists, return it
+          {:ok, existing_artist}
+      end
     end)
     |> Multi.run(:albums, fn _repo, %{artist: saved_artist} ->
-      # Insert albums one by one to ensure proper error handling
-      album_results =
-        Enum.map(album_items, fn album ->
-          album_attrs = %{
-            spotify_id: album["id"],
-            name: album["name"],
-            release_date: album["release_date"] || "Unknown",
-            artist_id: saved_artist.id
-          }
-
-          Music.create_album(album_attrs)
-        end)
-
-      # Check if all albums were successfully inserted
-      case Enum.all?(album_results, fn result -> match?({:ok, _}, result) end) do
-        true ->
-          albums = Enum.map(album_results, fn {:ok, album} -> album end)
+      # If artist already had albums preloaded, return them
+      case saved_artist.albums do
+        albums when is_list(albums) and albums != [] ->
           {:ok, albums}
 
-        false ->
-          # Find the first error
-          error_result = Enum.find(album_results, fn result -> match?({:error, _}, result) end)
-          error_result
+        _ ->
+          # No albums exist or weren't preloaded, insert new albums
+          album_results =
+            Enum.map(album_items, fn album ->
+              album_attrs = %{
+                spotify_id: album["id"],
+                name: album["name"],
+                release_date: album["release_date"] || "Unknown",
+                artist_id: saved_artist.id
+              }
+
+              Music.create_album(album_attrs)
+            end)
+
+          # Check if all albums were successfully inserted
+          case Enum.all?(album_results, fn result -> match?({:ok, _}, result) end) do
+            true ->
+              albums = Enum.map(album_results, fn {:ok, album} -> album end)
+              {:ok, albums}
+
+            false ->
+              # Find the first error
+              error_result = Enum.find(album_results, fn result -> match?({:error, _}, result) end)
+              error_result
+          end
       end
     end)
     |> Repo.transaction()
