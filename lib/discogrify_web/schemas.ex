@@ -2,6 +2,65 @@ defmodule DiscogrifyWeb.Schemas do
   require OpenApiSpex
   alias OpenApiSpex.Schema
 
+  defmodule LoginRequest do
+    OpenApiSpex.schema(%{
+      name: "LoginRequest",
+      description: "Login request with email and password",
+      type: :object,
+      properties: %{
+        email: %Schema{type: :string, description: "User email", format: :email},
+        password: %Schema{type: :string, description: "User password", minLength: 1}
+      },
+      required: [:email, :password],
+      example: %{
+        email: "user@example.com",
+        password: "password"
+      }
+    })
+  end
+
+  defmodule LoginResponse do
+    OpenApiSpex.schema(%{
+      name: "LoginResponse",
+      description: "Login response with authentication token",
+      type: :object,
+      properties: %{
+        token: %Schema{type: :string, description: "Authentication bearer token"},
+        user: %Schema{
+          type: :object,
+          properties: %{
+            id: %Schema{type: :integer, description: "User ID"},
+            email: %Schema{type: :string, description: "User email"}
+          },
+          required: [:id, :email]
+        }
+      },
+      required: [:token, :user],
+      example: %{
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        user: %{
+          id: 1,
+          email: "user@example.com"
+        }
+      }
+    })
+  end
+
+  defmodule ErrorResponse do
+    OpenApiSpex.schema(%{
+      name: "ErrorResponse",
+      description: "Error response",
+      type: :object,
+      properties: %{
+        error: %Schema{type: :string, description: "Error message"}
+      },
+      required: [:error],
+      example: %{
+        error: "Invalid credentials"
+      }
+    })
+  end
+
   defmodule Album do
     OpenApiSpex.schema(%{
       name: "Album",

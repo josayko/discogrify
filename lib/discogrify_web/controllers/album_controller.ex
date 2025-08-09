@@ -18,6 +18,7 @@ defmodule DiscogrifyWeb.AlbumController do
     summary: "Search albums",
     description: "Search an artist's albums",
     operation_id: "search",
+    security: [%{"bearer" => []}],
     parameters: [
       artist_name: [
         in: :query,
@@ -28,7 +29,8 @@ defmodule DiscogrifyWeb.AlbumController do
       ]
     ],
     responses: [
-      ok: {"Albums List Response", "application/json", Schemas.AlbumsResponse}
+      ok: {"Albums List Response", "application/json", Schemas.AlbumsResponse},
+      unauthorized: {"Authentication required", "application/json", Schemas.ErrorResponse}
     ]
 
   def search(conn, %{artist_name: artist_name}) do

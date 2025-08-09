@@ -3,10 +3,13 @@ defmodule DiscogrifyWeb.ApiSpec do
   OpenAPI specification for Discogrify API.
   """
   alias OpenApiSpex.{
+    Components,
     Info,
     OpenApi,
     Paths,
-    Server
+    SecurityScheme,
+    Server,
+    Tag
   }
 
   alias DiscogrifyWeb.{Endpoint, Router}
@@ -24,7 +27,28 @@ defmodule DiscogrifyWeb.ApiSpec do
         version: to_string(Application.spec(:discogrify, :vsn))
       },
       # Populate the paths from a phoenix router
-      paths: Paths.from_router(Router)
+      paths: Paths.from_router(Router),
+      # Define tags order - Authentication first, then Albums
+      tags: [
+        %Tag{
+          name: "Authentication",
+          description: "Authentication endpoints for user login and token management"
+        },
+        %Tag{
+          name: "Albums",
+          description: "Album search and management endpoints"
+        }
+      ],
+      components: %Components{
+        securitySchemes: %{
+          "bearer" => %SecurityScheme{
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "Phoenix Token",
+            description: "Phoenix built-in token authentication"
+          }
+        }
+      }
     }
     # Discover request/response schemas from path specs
     |> OpenApiSpex.resolve_schema_modules()

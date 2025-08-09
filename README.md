@@ -26,6 +26,30 @@ docker-compose up -d
 
 Now you can visit [`localhost:4000/api`](http://localhost:4000/api) from your browser.
 
+### Usage
+The API requires authentication to access the endpoints, the default user is `user@example.com` with password `password`.
+
+#### Swager UI (recommended)
+-  Request the login endpoint on the [Swagger UI](http://localhost:4001/api#/Authentication/login) and provide the Bearer `token` in the `Authorize 🔓` settings.
+
+#### cURL
+```sh
+curl -X 'POST' \
+  'http://localhost:4000/api/auth/login' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "user@example.com",
+  "password": "password"
+}'
+# {"user":{"id":1,"email":"user@example.com"},"token":"SFMyNTY.g2gDYQFuBgCTGUiOmAFiAAFRgA.RoJlZK_GXSTLfcMy8eveN9yP3zKeU-ny4eEA-HmubnI"}
+```
+
+#### Example request to the albums endpoint
+```sh
+curl -H "Authorization: Bearer SFMyNTY.g2gDYQFuBgCTGUiOmAFiAAFRgA.RoJlZK_GXSTLfcMy8eveN9yP3zKeU-ny4eEA-HmubnI" \
+  "http://localhost:4000/api/albums?artist_name=radiohead"
+```
+
 ## API Spec
 ### Generating the spec
 - If you want to generate the OpenAPI spec

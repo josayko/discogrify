@@ -15,6 +15,12 @@ defmodule DiscogrifyWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: DiscogrifyWeb.ApiSpec
   end
 
+  pipeline :api_authenticated do
+    plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, module: DiscogrifyWeb.ApiSpec
+    plug DiscogrifyWeb.AuthPlug
+  end
+
   scope "/", DiscogrifyWeb do
     pipe_through :browser
 
@@ -26,6 +32,11 @@ defmodule DiscogrifyWeb.Router do
     get "/", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
 
+    post "/auth/login", DiscogrifyWeb.AuthController, :login
+  end
+
+  scope "/api" do
+    pipe_through :api_authenticated
     get "/albums", DiscogrifyWeb.AlbumController, :search
   end
 
