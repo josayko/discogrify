@@ -126,8 +126,11 @@ if config_env() == :dev do
   ])
 end
 
-config :discogrify,
-  spotify_accounts_url: env!("SPOTIFY_ACCOUNTS_URL"),
-  spotify_api_url: env!("SPOTIFY_API_URL"),
-  spotify_client_id: env!("SPOTIFY_CLIENT_ID"),
-  spotify_client_secret: env!("SPOTIFY_CLIENT_SECRET")
+# Only configure Spotify API in dev and prod environments
+if config_env() != :test do
+  config :discogrify,
+    spotify_accounts_url: env!("SPOTIFY_ACCOUNTS_URL"),
+    spotify_api_url: env!("SPOTIFY_API_URL"),
+    spotify_client_id: env!("SPOTIFY_CLIENT_ID"),
+    spotify_client_secret: env!("SPOTIFY_CLIENT_SECRET")
+end

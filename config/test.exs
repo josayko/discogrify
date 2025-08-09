@@ -35,3 +35,10 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Configure Spotify API for tests (using dummy values)
+config :discogrify,
+  spotify_accounts_url: "https://accounts.spotify.com",
+  spotify_api_url: "https://api.spotify.com/v1",
+  spotify_client_id: "test_client_id",
+  spotify_client_secret: "test_client_secret"

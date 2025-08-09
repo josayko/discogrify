@@ -44,6 +44,11 @@ defmodule DiscogrifyWeb.ErrorHelpers do
         |> Plug.Conn.put_status(:bad_gateway)
         |> Phoenix.Controller.json(%{error: "Spotify API error", status: status, details: body})
 
+      {:http_error, status, body} ->
+        conn
+        |> Plug.Conn.put_status(:bad_gateway)
+        |> Phoenix.Controller.json(%{error: "HTTP error", status: status, details: body})
+
       {:network_error, reason} ->
         conn
         |> Plug.Conn.put_status(:service_unavailable)
