@@ -8,7 +8,7 @@
 ### Setup the database
 ```sh
 # You can customize the database config in `compose.yaml`
-docker-compose up -d
+docker compose up -d
 ```
 - PostgreSQL 17.5 is running on port 5432. You can change the port in `compose.yaml` and `config/dev.exs` accordingly.
 
